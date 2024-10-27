@@ -5,7 +5,7 @@ results = pd.read_excel('results_noisy.xlsx')
 df = pd.DataFrame(results)
 columns = df.columns[0]
 df = df[columns].str.split(',', expand=True)
-df.columns = ['date', 'home_team', 'away_team', 'home_score', 'away_score', 'tournemant', 'city', 'country', 'neutral', 'empty']
+df.columns = ['date', 'home_team', 'away_team', 'home_score', 'away_score', 'tournament', 'city', 'country', 'neutral', 'empty']
 df = df.drop(['empty'], axis=1)
 
 def normalize_date(value):
@@ -21,5 +21,33 @@ df['year'] = df['date'].dt.year
 df['month'] = df['date'].dt.month
 df['day_of_week'] = df['date'].dt.day_name()
 
-df = df[['date', 'year', 'month', 'day_of_week', 'home_team', 'away_team', 'home_score', 'away_score', 'tournemant', 'city' , 'country', 'neutral']]
-df.to_('results.csv', index=False)
+from unidecode import unidecode
+import re
+
+def normalize_name(name):
+    # Usunięcie nadmiarowych spacji
+    name = name.strip()
+    
+    # Usunięcie znaków diakrytycznych
+    name = unidecode(name)
+    
+    # Usunięcie znaków "(" i ")"
+    name = name.replace('(', '').replace(')', '').replace("A‰", "E").replace("Ac", "e").replace("0", "O") \
+.replace("CONMEBOLaEUR\"", "CONMEBOL").replace("...", "land").replace("a|", "ó").replace("a+-", "ñ").replace("a$?", "ä") \
+    
+    # Zastąpienie pustych wartości
+    if name == '':
+        return 'unknown'
+    
+    return name
+
+# Normalizacja kolumny 'tournament'
+df['tournament'] = df['tournament'].apply(normalize_name)
+df['home_team'] = df['home_team'].apply(normalize_name)
+df['away_team'] = df['away_team'].apply(normalize_name)
+df['city'] = df['city'].apply(normalize_name)
+df['country'] = df['country'].apply(normalize_name)
+
+
+df = df[['date', 'year', 'month', 'day_of_week', 'home_team', 'away_team', 'home_score', 'away_score', 'tournament', 'city' , 'country', 'neutral']]
+df.to_csv('results.csv', index=False)
