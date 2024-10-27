@@ -1,0 +1,25 @@
+import pandas as pd
+
+results = pd.read_excel('results_noisy.xlsx')
+
+df = pd.DataFrame(results)
+columns = df.columns[0]
+df = df[columns].str.split(',', expand=True)
+df.columns = ['date', 'home_team', 'away_team', 'home_score', 'away_score', 'tournemant', 'city', 'country', 'neutral', 'empty']
+df = df.drop(['empty'], axis=1)
+
+def normalize_date(value):
+    try:
+        # Próbujemy przekonwertować na datetime
+        return pd.to_datetime(value, errors='coerce')  # Umożliwia różne formaty
+    except ValueError:
+        return None  # W przypadku błędu zwracamy None
+
+df['date'] = df['date'].apply(normalize_date)
+
+df['year'] = df['date'].dt.year
+df['month'] = df['date'].dt.month
+df['day_of_week'] = df['date'].dt.day_name()
+
+df = df[['date', 'year', 'month', 'day_of_week', 'home_team', 'away_team', 'home_score', 'away_score', 'tournemant', 'city' , 'country', 'neutral']]
+df.to_('results.csv', index=False)
