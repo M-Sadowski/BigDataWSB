@@ -1,0 +1,24 @@
+import pandas as pd
+
+# Wczytaj dane z tabeli wyników i shootouts
+results_path = 'results.csv'
+goalscorers_path = 'goalscorers.csv'
+
+results = pd.read_csv(results_path)
+goalscorers = pd.read_csv(goalscorers_path)
+
+
+# Dopasowanie na podstawie daty i drużyn
+goalscorers = goalscorers.merge(
+    results[['match_id', 'date', 'home_team', 'away_team']],
+    how='left',
+    left_on=['date', 'home_team', 'away_team'],
+    right_on=['date', 'home_team', 'away_team']
+)
+
+# Przesuwamy kolumnę game_id na pierwsze miejsce
+columns = ['match_id'] + [col for col in goalscorers.columns if col != 'match_id']
+goalscorers = goalscorers[columns]
+
+# Zapisanie zaktualizowanej tabeli shootouts do pliku CSV
+goalscorers.to_csv('goalscorers.csv', index=False)
