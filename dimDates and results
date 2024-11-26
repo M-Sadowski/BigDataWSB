@@ -1,0 +1,60 @@
+import pandas as pd
+
+# Wczytaj dane z pliku results.csv
+file_path = 'results.csv'  # Ustaw odpowiednią ścieżkę do pliku
+data = pd.read_csv(file_path)
+
+# Upewnij się, że kolumna 'date' jest typu datetime
+data['date'] = pd.to_datetime(data['date'], errors='coerce')
+
+# Czyszczenie nazw państw: usunięcie spacji i formatowanie na "Title Case"
+data['country'] = data['country'].str.strip().str.title()
+
+# Czyszczenie nazw drużyn: usunięcie spacji z przodu i z tyłu
+data['home_team'] = data['home_team'].str.strip()
+data['away_team'] = data['away_team'].str.strip()
+
+# Czyszczenie nazw miast: usunięcie spacji, diakrytyków i formatowanie na "Title Case"
+import unidecode
+data['city'] = data['city'].apply(lambda x: unidecode.unidecode(x.strip()).title() if isinstance(x, str) else x)
+
+# Usuwanie wierszy z brakującymi datami
+data = data.dropna(subset=['date'])
+
+# **Usuwanie przypadków, gdzie home_team == away_team**
+data = data[data['home_team'] != data['away_team']]
+
+# Tworzenie tabeli wymiarów dat
+def create_date_dimension_from_data(dates):
+    unique_dates = sorted(dates.drop_duplicates())
+    dim_date = pd.DataFrame({
+        'date': unique_dates,
+        'year': [d.year for d in unique_dates],
+        'month': [d.month for d in unique_dates],
+        'month_name': [d.strftime('%B') for d in unique_dates],
+        'day': [d.day for d in unique_dates],
+        'day_of_week': [d.dayofweek for d in unique_dates],  # 0 = Poniedziałek, 6 = Niedziela
+        'day_name': [d.strftime('%A') for d in unique_dates],
+        'is_weekend': [d.weekday() in [5, 6] for d in unique_dates]
+    })
+    dim_date['date_id'] = dim_date.index + 1
+    return dim_date
+
+# Generowanie tabeli wymiarów dat
+dim_date = create_date_dimension_from_data(data['date'])
+
+# Tabela faktów: usuwamy niepotrzebne przekształcenia turniejów i drużyn
+fact_matches = data[
+    ['date', 'home_team', 'away_team', 'home_score', 'away_score', 'city', 'country', 'neutral', 'tournament']
+].reset_index(drop=True)
+
+# Wyświetlenie przykładowych danych
+print("Tabela faktów (przykład):")
+print(fact_matches.head())
+
+print("\nTabela wymiarów dat (przykład):")
+print(dim_date.head())
+
+# Zapis danych do plików CSV
+fact_matches.to_csv('fact_matches.csv', index=False)
+dim_date.to_csv('dim_date.csv', index=False)
