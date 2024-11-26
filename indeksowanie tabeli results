@@ -1,0 +1,11 @@
+import pandas as pd
+
+# Wczytaj tabelę results.csv
+file_path = 'results.csv'
+results = pd.read_csv(file_path)
+
+# Dodanie unikalnego indeksu dla każdego meczu
+results.insert(0, 'match_id', range(1, len(results) + 1))
+
+# Zapisanie zaktualizowanej tabeli do pliku CSV
+results.to_csv('results_with_index.csv', index=False)
