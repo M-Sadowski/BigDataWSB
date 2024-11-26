@@ -1,0 +1,20 @@
+import pandas as pd
+
+# Wczytaj plik CSV
+input_path = 'goalscorers.csv'  # Ścieżka do oryginalnego pliku CSV
+output_path = 'goalscorers_modified.csv'  # Ścieżka do zmodyfikowanego pliku CSV
+
+# Wczytaj dane z pliku
+data = pd.read_csv(input_path)
+
+# Upewnij się, że kolumna 'match_id' istnieje
+if 'match_id' not in data.columns:
+    raise ValueError("Kolumna 'match_id' nie istnieje w pliku CSV.")
+
+# Usuń brakujące wartości w kolumnie 'match_id', jeśli istnieją
+data['match_id'] = data['match_id'].fillna(-1).astype(int)
+
+# Zapisz zmodyfikowany plik CSV
+data.to_csv(output_path, index=False)
+
+print(f"Plik CSV został zapisany jako '{output_path}' z 'match_id' jako liczbą całkowitą.")
