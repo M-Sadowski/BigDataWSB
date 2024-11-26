@@ -21,9 +21,6 @@ data['city'] = data['city'].apply(lambda x: unidecode.unidecode(x.strip()).title
 # Usuwanie wierszy z brakującymi datami
 data = data.dropna(subset=['date'])
 
-# **Usuwanie przypadków, gdzie home_team == away_team**
-data = data[data['home_team'] != data['away_team']]
-
 # Tworzenie tabeli wymiarów dat
 def create_date_dimension_from_data(dates):
     unique_dates = sorted(dates.drop_duplicates())
