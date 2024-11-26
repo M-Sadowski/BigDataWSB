@@ -1,0 +1,38 @@
+import pandas as pd
+
+# Wczytaj dane z tabeli wyników i shootouts
+results_path = 'results_with_index.csv'
+shootouts_path = '/mnt/data/shootouts.csv'
+
+results = pd.read_csv(results_path)
+shootouts = pd.read_csv(shootouts_path)
+
+# Sprawdzenie, jakie kolumny są dostępne w obu tabelach
+print("Kolumny w tabeli results:", results.columns)
+print("Kolumny w tabeli shootouts:", shootouts.columns)
+
+# Zakładamy, że shootouts zawiera klucze, np. datę, drużyny lub inne dane do powiązania z results.
+# Dołączanie game_id (match_id z results) na podstawie kluczowych kolumn.
+# Dostosuj kolumny kluczowe poniżej w zależności od zawartości plików.
+
+# Dopasowanie na podstawie daty i drużyn
+shootouts = shootouts.merge(
+    results[['match_id', 'date', 'home_team', 'away_team']],
+    how='left',
+    left_on=['date', 'home_team', 'away_team'],
+    right_on=['date', 'home_team', 'away_team']
+)
+
+# Zmieniamy nazwę `match_id` na `game_id` w tabeli shootouts
+shootouts.rename(columns={'match_id': 'game_id'}, inplace=True)
+
+# Przesuwamy kolumnę game_id na pierwsze miejsce
+columns = ['game_id'] + [col for col in shootouts.columns if col != 'game_id']
+shootouts = shootouts[columns]
+
+# Zapisanie zaktualizowanej tabeli shootouts do pliku CSV
+shootouts.to_csv('shootouts_with_game_id.csv', index=False)
+
+# Wyświetlenie przykładowych danych
+print("Przykładowe dane z dodanym game_id:")
+print(shootouts.head())
