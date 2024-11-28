@@ -1,0 +1,20 @@
+import pandas as pd
+
+# Wczytaj pliki CSV
+results = pd.read_csv('results.csv')
+tournaments = pd.read_csv('tournaments.csv')
+countries = pd.read_csv('countries.csv')
+cities = pd.read_csv('cities.csv')
+teams = pd.read_csv('teams.csv')
+
+# Łączenie tabel
+match_facts = results.merge(tournaments, left_on='tournament', right_on='TournamentName', how='left')\
+                     .merge(cities, left_on='city', right_on='CityName', how='left')\
+                     .merge(countries, left_on='country', right_on='CountryName', how='left')\
+                     .merge(teams, left_on='home_team', right_on='TeamName', how='left')\
+                     .merge(teams, left_on='away_team', right_on='TeamName', how='left')
+
+MatchFacts = match_facts[['match_id', 'date', 'TeamId_x', 'TeamId_y', 'home_score', 'away_score', 'CountryId', 'CityId', 'neutral', 'TournamentId']]
+MatchFacts = MatchFacts.rename(columns={'match_id': 'MatchId', 'date': 'Date', 'TeamId_x': 'HomeTeamId', 'TeamId_y': 'AwayTeamId', 'neutral': 'Neutral', 'home_score': 'HomeScore', 'away_score': 'AwayScore'})
+# Zapisanie wyników
+MatchFacts.to_csv('matchFacts.csv', index=False)
