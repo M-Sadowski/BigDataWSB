@@ -1,0 +1,19 @@
+import pandas as pd
+
+# Wczytaj plik CSV (zmień 'results.csv' na ścieżkę swojego pliku)
+file_path = 'results.csv'
+data = pd.read_csv(file_path)
+
+# Wyodrębnij unikalne turnieje i przypisz im identyfikatory jako stringi
+unique_tournaments = data['tournament'].drop_duplicates().reset_index(drop=True)
+tournaments_df = pd.DataFrame({
+    'TournamentId': range(1, len(unique_tournaments) + 1),
+    'TournamentName': unique_tournaments
+})
+
+# Konwersja identyfikatorów na stringi
+tournaments_df['TournamentId'] = tournaments_df['TournamentId'].astype(str)
+
+# Zapisz wynik do pliku CSV (opcjonalne, jeśli chcesz zapisać wynik)
+output_path = 'tournaments.csv'
+tournaments_df.to_csv(output_path, index=False)
