@@ -12,7 +12,7 @@ countries_df = pd.DataFrame({
 })
 
 # Konwersja identyfikatorów na stringi
-tournaments_df['CountryId'] = countries_df['CountryId'].astype(str)
+countries_df['CountryId'] = countries_df['CountryId'].astype(str)
 
 # Zapisz wynik do pliku CSV (opcjonalne, jeśli chcesz zapisać wynik)
 output_path = 'countries.csv'
