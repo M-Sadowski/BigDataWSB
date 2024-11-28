@@ -1,0 +1,18 @@
+import pandas as pd
+
+# Wczytaj plik CSV (zmień 'results.csv' na ścieżkę swojego pliku)
+file_path = 'results.csv'
+data = pd.read_csv(file_path)
+
+#wyodrębnij unikatowe miasta
+unique_cities = data['city'].drop_duplicates().reset_index(drop=True)
+cities_df = pd.DataFrame({
+    'CityId': range(1, len(unique_cities) +1),
+    'CityName': unique_cities
+})
+
+#konwersja identyfikatorów na stringi
+cities_df['CityId'] = cities_df['CityId'].astype(str)
+
+#zapisanie wyników
+cities_df.to_csv('cities.csv', index=False)
