@@ -1,0 +1,19 @@
+import pandas as pd
+
+# Wczytaj plik CSV (zmień 'results.csv' na ścieżkę swojego pliku)
+file_path = 'results.csv'
+data = pd.read_csv(file_path)
+
+# Wyodrębnij unikalne kraje i przypisz im identyfikatory jako stringi
+unique_countries = data['country'].drop_duplicates().reset_index(drop=True)
+countries_df = pd.DataFrame({
+    'CountryId': range(1, len(unique_countries) + 1),
+    'CountryName': unique_countries
+})
+
+# Konwersja identyfikatorów na stringi
+tournaments_df['CountryId'] = countries_df['CountryId'].astype(str)
+
+# Zapisz wynik do pliku CSV (opcjonalne, jeśli chcesz zapisać wynik)
+output_path = 'countries.csv'
+countries_df.to_csv(output_path, index=False)
