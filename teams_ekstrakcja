@@ -1,0 +1,22 @@
+import pandas as pd
+
+# Wczytaj plik CSV (zmień 'results.csv' na ścieżkę swojego pliku)
+file_path = 'results.csv'
+data = pd.read_csv(file_path)
+
+#wyodrębnij unikatowe miasta
+unique_hometeams = data['home_team'].drop_duplicates().reset_index(drop=True)
+unique_awayteams = data['away_team'].drop_duplicates().reset_index(drop=True)
+unique_teams = pd.concat([unique_hometeams, unique_awayteams]).drop_duplicates().reset_index(drop=True)
+
+teams_df = pd.DataFrame({
+    'TeamId': range(1, len(unique_teams) +1),
+    'TeamName': unique_teams
+})
+
+#konwersja identyfikatorów na stringi
+teams_df['TeamId'] = teams_df['TeamId'].astype(str)
+
+#zapisanie wyników
+teams_df.to_csv('teams.csv', index=False)
+    
