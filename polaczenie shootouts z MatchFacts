@@ -1,0 +1,20 @@
+import pandas as pd
+
+# Wczytaj pliki CSV
+results = pd.read_csv('matchFacts.csv')
+teams = pd.read_csv('teams.csv')
+shootouts = pd.read_csv('shootouts_modified.csv')
+
+shootouts = shootouts.merge(teams, left_on='winner', right_on= 'TeamName', how='left')\
+                    .merge(teams, left_on='first_shooter', right_on= 'TeamName', how='left')
+shootouts= shootouts[['match_id', 'TeamId_x', 'TeamId_y']]
+shootouts= shootouts.rename(columns={'match_id': 'MatchId', 'TeamId_x': 'WinnerTeamId', 'TeamId_y': 'FirstShooterTeamId'})
+
+# Łączenie tabel
+match_facts = results.merge(shootouts, left_on= 'MatchId', right_on= 'MatchId', how='left')
+MatchFacts = match_facts[['MatchId', 'Date', 'HomeTeamId', 'AwayTeamId', 'HomeScore', 'AwayScore', 'CountryId',\
+                          'CityId', 'Neutral', 'TournamentId', 'WinnerTeamId', 'FirstShooterTeamId']]
+
+MatchFacts['WinnerTeamId'] = MatchFacts['WinnerTeamId'].fillna(0).astype(int).astype(str)
+MatchFacts['FirstShooterTeamId'] = MatchFacts['FirstShooterTeamId'].fillna(0).astype(int).astype(str)
+print(MatchFacts)
