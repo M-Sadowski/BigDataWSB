@@ -3,6 +3,10 @@ import pandas as pd
 # zaladowanie danych i utworzenie DataFrame
 results = pd.read_csv(r"/Users/michal/Desktop/footballData/results_noisy.csv")
 results = pd.DataFrame(results)
+goalscorers = pd.read_csv(r"/Users/michal/Desktop/footballData/goalscorers.csv")
+goalscorers = pd.DataFrame(goalscorers)
+shootouts = pd.read_csv(r"/Users/michal/Desktop/footballData/shootouts.csv")
+shootouts = pd.DataFrame(shootouts)
 
 # normalizacja daty
 def normalize_date(value):
@@ -42,7 +46,35 @@ tournaments = pd.DataFrame()
 tournaments.insert(0, 'tournament', results['tournament'].drop_duplicates().reset_index(drop=True))
 tournaments.insert(0, 'tournamentId', ['T' + str(i) for i in range(1, len(tournaments) + 1)])
 
-#tworzenie tabeli faktów results
+#implementacja tabeli shootouts
+shootouts['date']= shootouts['date'].apply(normalize_date)
+
+results = results.merge(shootouts, left_on= ['date', 'home_team', 'away_team'], right_on= ['date', 'home_team', 'away_team'], how= 'left') \
+            .rename(columns= {'first_shooter': 'firstShooter'})
+
+results['shootouts'] = results['winner'].notna()
+
+results = results[['matchId', 'date', 'home_team', 'away_team', 'home_score', 'away_score', 'country', 'city', 'neutral',\
+                   'tournament', 'shootouts', 'winner', 'firstShooter']]
+
+#utworzenie tabeli goals na podstawie goalscorers
+goalscorers['date'] = goalscorers['date'].apply(normalize_date)
+results_subset = results[['matchId', 'date', 'home_team', 'away_team']]
+
+goalscorers = goalscorers.merge(results_subset, left_on= ['date', 'home_team', 'away_team'], right_on= ['date', 'home_team', 'away_team'], how= 'left')\
+                        .rename(columns= {'team': 'teamId', 'own_goal': 'ownGoal'}).drop(['home_team', 'away_team'], axis=1)
+
+goalscorers = goalscorers[['date', 'matchId', 'teamId', 'scorer', 'minute', 'ownGoal', 'penalty']]
+goalscorers.insert(0, 'goalId', ['G' + str(i) for i in range(1, len(goalscorers) + 1)])
+goalscorers = goalscorers.dropna()
+goalscorers['minute'] = goalscorers['minute'].astype(int)
+
+goalscorers = goalscorers.merge(teams, left_on = 'teamId', right_on= 'team', how= 'left')\
+                        .rename(columns= {'teamId_y': 'teamId'})
+
+goals = goalscorers[['goalId', 'date', 'matchId', 'teamId', 'scorer', 'minute', 'ownGoal', 'penalty']]
+
+#utworzenie tabeli faktów
 results = results.merge(teams, left_on='home_team', right_on='team', how='left') \
                  .rename(columns={'teamId': 'homeTeamId', 'home_score': 'homeScore', 'away_score': 'awayScore'}).drop(['home_team', 'team'], axis=1)
 
@@ -55,7 +87,9 @@ results = results.merge(locations, left_on=['country', 'city'], right_on=['count
 results = results.merge(tournaments, left_on='tournament', right_on='tournament', how='left') \
                  .rename(columns={'tournamentId': 'tournamentId'}).drop(['tournament'], axis=1)
 
-results = results[['matchId', 'homeTeamId', 'awayTeamId', 'homeScore', 'awayScore', 'locationId', 'neutral', 'tournamentId']]
+results = results[['matchId', 'homeTeamId', 'awayTeamId', 'homeScore', 'awayScore', 'locationId', 'neutral', 'tournamentId', 'shootouts', 'winner', 'firstShooter']]
 results['homeScore'] = results['homeScore'].astype(int)
 results['awayScore'] = results['awayScore'].astype(int)
+
+
 print(results)
