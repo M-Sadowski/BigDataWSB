@@ -33,7 +33,7 @@ results.insert(0, 'matchId', ['M' + str(i) for i in range(1, len(results) + 1)])
 
 # tworzenie tabeli dates
 dates = results[['date', 'year', 'month', 'day', 'day_of_week']]
-dates = dates.drop_duplicates()
+dates = dates.drop_duplicates().reset_index(drop=True)
 
 #ekstrakcja tabeli location
 locations = results[['country', 'city']].drop_duplicates().reset_index(drop=True)
@@ -94,39 +94,46 @@ results = results[['matchId', 'homeTeamId', 'awayTeamId', 'homeScore', 'awayScor
 results['homeScore'] = results['homeScore'].astype(int)
 results['awayScore'] = results['awayScore'].astype(int)
 
+# Zapis plików docelowych
 
+results.to_csv(r"/Users/michal/Desktop/footballDataTransformed/factsResults.csv")
+goals.to_csv(r"/Users/michal/Desktop/footballDataTransformed/factsGoals.csv")
+teams.to_csv(r"/Users/michal/Desktop/footballDataTransformed/dimTeams.csv")
+locations.to_csv(r"/Users/michal/Desktop/footballDataTransformed/dimLocations.csv")
+tournaments.to_csv(r"/Users/michal/Desktop/footballDataTransformed/dimTournaments.csv")
+dates.to_csv(r"/Users/michal/Desktop/footballDataTransformed/dimDates.csv")
 # Konfiguracja połączenia z bazą danych SQL Server
-server = 'football-data-server.database.windows.net'  # Zastąp nazwą lub adresem serwera
-database = 'footballDB'  # Zastąp nazwą swojej bazy danych
-username = 'wsb_student'  # Zastąp nazwą użytkownika
-password = 'P@ssword'  # Zastąp hasłem użytkownika
+#server = 'football-data-server.database.windows.net'  # Zastąp nazwą lub adresem serwera
+#database = 'footballDB'  # Zastąp nazwą swojej bazy danych
+#username = 'wsb_student'  # Zastąp nazwą użytkownika
+#password = 'P@ssword'  # Zastąp hasłem użytkownika
 
 # Ustawienie połączenia
-conn = pyodbc.connect(
-    'DRIVER={ODBC Driver 17 for SQL Server};'
-    'SERVER=' + server + ';'
-    'DATABASE=' + database + ';'
-    'UID=' + username + ';'
-    'PWD=' + password
-)
+#conn = pyodbc.connect(
+#    'DRIVER={ODBC Driver 17 for SQL Server};'
+#    'SERVER=' + server + ';'
+#    'DATABASE=' + database + ';'
+#    'UID=' + username + ';'
+#    'PWD=' + password
+#)
 
-cursor = conn.cursor()
+#cursor = conn.cursor()
 # Przesyłanie tabel z Pandas do SQL Server
 
-def upload_to_sql(df, table_name):
+#def upload_to_sql(df, table_name):
     
-    df.to_sql(table_name, conn, if_exists='replace', index=False)
-    print(f"Tabela {table_name} została załadowana do bazy danych.")
+  #  df.to_sql(table_name, conn, if_exists='replace', index=False)
+ #   print(f"Tabela {table_name} została załadowana do bazy danych.")
 
 # Funkcja do przesyłania danych
-upload_to_sql(results, 'results')
-upload_to_sql(teams, 'teams')
-upload_to_sql(locations, 'locations')
-upload_to_sql(dates, 'dates')
-upload_to_sql(goals, 'goals')
-upload_to_sql(tournaments, 'tournaments')
+#upload_to_sql(results, 'results')
+#upload_to_sql(teams, 'teams')
+#upload_to_sql(locations, 'locations')
+#upload_to_sql(dates, 'dates')
+#upload_to_sql(goals, 'goals')
+#upload_to_sql(tournaments, 'tournaments')
 
 # Zamknięcie połączenia
-conn.commit()
-cursor.close()
-conn.close()
+#conn.commit()
+#cursor.close()
+#conn.close()
