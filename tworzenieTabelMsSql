@@ -32,11 +32,16 @@ CREATE TABLE results (
 	locationId VARCHAR(50) NOT NULL,
 	tournamentId VARCHAR(50) NOT NULL,
 	neutral BIT NOT NULL,
+	shootouts BIT NOT NULL,
+	shootoutsWinnerId VARCHAR(50),
+	shootoutsFirstShooterId) VARCHAR(50),
 	FOREIGN KEY (homeTeamId) REFERENCES teams(teamId),
 	FOREIGN KEY (awayTeamId) REFERENCES teams(teamId),
 	FOREIGN KEY (tournamentId) REFERENCES tournaments(tournamentId),
 	FOREIGN KEY (locationId) REFERENCES locations(locationId),
-	FOREIGN KEY (date) REFERENCES dates(date)
+	FOREIGN KEY (date) REFERENCES dates(date),
+	FOREIGN KEY (shootoutsWinnerId) REFERENCES teams(teamId),
+	FOREIGN KEY (shootoutsFirstShooterId) REFERENCES teams(teamId)	
 );
 
 CREATE TABLE goals (
